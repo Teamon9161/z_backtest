@@ -2,55 +2,56 @@ const std = @import("std");
 const ArrayList = std.ArrayList;
 const HashMap = std.AutoHashMap;
 const ALLOC = @import("root.zig").ALLOC;
-const Order = @import("order/Order.zig");
+const Order = @import("order_book/order.zig").Order;
 
 const EventTag = enum(u8) {
     new_order,
 };
 
-pub const Event = union(EventTag) {
+pub const EventType = union(EventTag) {
     /// 创建新订单事件
     new_order: Order,
 };
 
-pub const EventItem = struct {
-    event: Event,
+pub const Event = struct {
+    event: EventType,
     finish_time: i64,
     asset: u32 = 0, // 目标标的
 };
 
 pub const EventPool = struct {
-    events: ArrayList(EventItem),
+    events: ArrayList(Event),
     // 最快完成的一个事件的完成时间
     fastest_finish_time: ?i64 = null,
+    const Self = @This();
 
-    pub fn init(allocator: ?std.mem.Allocator) @This() {
+    pub fn init(allocator: ?std.mem.Allocator) Self {
         const alloc = if (allocator) |alloc| alloc else ALLOC;
         return EventPool{
-            .events = ArrayList(EventItem).init(alloc),
+            .events = ArrayList(Event).init(alloc),
         };
     }
 
-    pub fn is_empty(self: *EventPool) bool {
+    pub fn is_empty(self: *const Self) bool {
         return self.len() == 0;
     }
 
-    pub fn len(self: *EventPool) usize {
+    pub fn len(self: *const Self) usize {
         return self.events.items.len;
     }
 
-    pub fn deinit(self: *EventPool) void {
+    pub fn deinit(self: Self) void {
         self.events.deinit();
     }
 
-    pub fn addEvent(self: *EventPool, item: EventItem) !void {
+    pub fn addEvent(self: *Self, item: Event) !void {
         if (self.fastest_finish_time == null or item.finish_time < self.fastest_finish_time.?) {
             self.fastest_finish_time = item.finish_time;
         }
         try self.events.append(item);
     }
 
-    pub fn findFastestFinishTime(self: *EventPool) void {
+    pub fn findFastestFinishTime(self: *Self) void {
         var fastest_finish_time: i64 = std.math.maxInt(i64);
         for (self.events.items) |event| {
             if (event.finish_time < fastest_finish_time) {
@@ -60,7 +61,7 @@ pub const EventPool = struct {
         self.fastest_finish_time = fastest_finish_time;
     }
 
-    pub fn gotoTime(self: *EventPool, until_time: ?i64) ?ArrayList(Event) {
+    pub fn gotoTime(self: *Self, until_time: ?i64) ?ArrayList(Event) {
         if (self.is_empty()) {
             return null;
         }
@@ -70,10 +71,10 @@ pub const EventPool = struct {
         }
 
         var processed_events: ArrayList(Event) = ArrayList(Event).init(ALLOC);
-        var unprocessed_events: ArrayList(EventItem) = ArrayList(EventItem).init(ALLOC);
+        var unprocessed_events: ArrayList(Event) = ArrayList(Event).init(ALLOC);
         for (self.events.items) |event| {
             if (event.finish_time <= time) {
-                processed_events.append(event.event) catch unreachable;
+                processed_events.append(event) catch unreachable;
             } else {
                 unprocessed_events.append(event) catch unreachable;
             }

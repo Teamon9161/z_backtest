@@ -1,7 +1,8 @@
 const std = @import("std");
 const EventPool = @import("event.zig").EventPool;
 const Event = @import("event.zig").Event;
-const Order = @import("order/Order.zig");
+const Order = @import("order_book/order.zig").Order;
+const Level = @import("order_book/level.zig").SnapLevel;
 const Asset = @import("Asset.zig");
 const ArrayList = std.ArrayList;
 

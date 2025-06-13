@@ -3,7 +3,7 @@
 //! start with main.zig instead.
 const std = @import("std");
 const builtin = @import("builtin");
-pub const World = @import("backtest.zig").World;
+pub const World = @import("world.zig").World;
 
 var debug_allocator: std.heap.DebugAllocator(.{}) = .init;
 
