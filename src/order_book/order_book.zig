@@ -100,6 +100,33 @@ pub fn SideBook(comptime Level: type, comptime side: Side) type {
             try level.addOrder(order);
         }
 
+        /// 尝试撮合订单，注意这里并不检查订单的方向
+        /// 调用的时候需要确保订单方向与自身相反
+        pub fn matchOrder(self: *Self, order: Order) !void {
+            var matched_orders = try ArrayList(ArrayList(Order)).initCapacity(self.allocator, 1);
+            for (self.levels.items) |*level| {
+                if (self.side == .buy) {
+                    // 买入
+                    if (level.price >= order.price) {
+                        const match_res = try level.matchOrder(order);
+                        if (match_res[1].items.len > 0) {
+                            try matched_orders.append(match_res[1]);
+                        }
+                        // 如果没有击穿该level说明已经匹配完成
+                        if (!match_res[0]) {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (level.price <= order.price) {} else {
+                        break;
+                    }
+                }
+            }
+        }
+
         /// 获得深度(前N档)
         pub fn getDepth(self: *const Self, depth: u32) []const *Level {
             const count = @min(depth, self.levels.items.len);

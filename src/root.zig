@@ -5,8 +5,8 @@ const std = @import("std");
 const builtin = @import("builtin");
 pub const World = @import("world.zig").World;
 
-// Simple OrderBook 模块导出
-pub const SimpleOrderBook = @import("order_book/simple_book.zig").SimpleOrderBook;
+// OrderBook 模块导出
+pub const OrderBook = @import("order_book/order_book.zig").OrderBook;
 pub const Order = @import("order_book/order.zig").Order;
 pub const SnapLevel = @import("order_book/level.zig").SnapLevel;
 

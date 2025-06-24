@@ -32,20 +32,40 @@ pub const OrderType = enum(u8) {
 };
 
 pub const Order = struct {
-    order_id: u64 = 0,
+    id: u64 = 0,
     price: f64 = 0,
     qty: f64 = 0,
     side: Side = .buy,
     exec_qty: f64 = 0, // 累计被成交的数量
     current_exec_qty: f64 = 0, // 最近一次成交的成交量
-    exec_amt: f64 = 0,
+    current_exec_price: f64 = 0, // 最近一次成交的价格
+    current_is_maker: bool = false, // 最近一次成交是否是maker
+    // exec_amt: f64 = 0,
     type: OrderType = .limit,
     create_timestamp: i64 = 0,
     // cancel_timestamp: i64 = 0,
     time_in_force: TimeInForce = .gtc,
-    req: Status = .new,
+    status: Status = .new,
     /// 剩余未成交的数量
-    pub fn leavesQty(self: *const Order) f64 {
+    pub fn remainQty(self: *const Order) f64 {
         return self.qty - self.exec_qty;
+    }
+
+    /// 主要为了避免双重释放的问题
+    pub inline fn clone(self: *const Order) Order {
+        return Order{
+            .id = self.id,
+            .price = self.price,
+            .qty = self.qty,
+            .side = self.side,
+            .exec_qty = self.exec_qty,
+            .current_exec_qty = self.current_exec_qty,
+            .current_exec_price = self.current_exec_price,
+            .current_is_maker = self.current_is_maker,
+            .type = self.type,
+            .create_timestamp = self.create_timestamp,
+            .time_in_force = self.time_in_force,
+            .status = self.status,
+        };
     }
 };
