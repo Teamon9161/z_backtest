@@ -105,10 +105,10 @@ test "world base" {
     };
     var world = World.init(.{ .assets = &asstes });
     defer world.deinit();
-    try world.local().newOrder(0, .{ .order_id = 1, .price = 10000, .qty = 1 });
-    try world.local().newOrder(1, .{ .order_id = 2, .price = 10000, .qty = 1 });
-    try world.local().newOrder(0, .{ .order_id = 3, .price = 10000, .qty = 1 });
-    try world.local().newOrder(1, .{ .order_id = 4, .price = 10000, .qty = 1 });
+    try world.local().newOrder(0, .{ .id = 1, .price = 10000, .qty = 1 });
+    try world.local().newOrder(1, .{ .id = 2, .price = 10000, .qty = 1 });
+    try world.local().newOrder(0, .{ .id = 3, .price = 10000, .qty = 1 });
+    try world.local().newOrder(1, .{ .id = 4, .price = 10000, .qty = 1 });
     std.debug.assert(world.ex_ep.len() == 4);
     world.gotoTime(null);
     std.debug.assert(world.ex_ep.len() == 0);

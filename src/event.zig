@@ -91,10 +91,10 @@ pub const EventPool = struct {
 test "event" {
     var event_pool = EventPool.init(null);
     defer event_pool.deinit();
-    try event_pool.addEvent(.{ .finish_time = 2, .event = .{ .new_order = .{ .order_id = 1 } } });
-    try event_pool.addEvent(.{ .finish_time = 1, .event = .{ .new_order = .{ .order_id = 2 } } });
-    try event_pool.addEvent(.{ .finish_time = 3, .event = .{ .new_order = .{ .order_id = 3 } } });
-    try event_pool.addEvent(.{ .finish_time = 1, .event = .{ .new_order = .{ .order_id = 4 } } });
+    try event_pool.addEvent(.{ .finish_time = 2, .event = .{ .new_order = .{ .id = 1 } } });
+    try event_pool.addEvent(.{ .finish_time = 1, .event = .{ .new_order = .{ .id = 2 } } });
+    try event_pool.addEvent(.{ .finish_time = 3, .event = .{ .new_order = .{ .id = 3 } } });
+    try event_pool.addEvent(.{ .finish_time = 1, .event = .{ .new_order = .{ .id = 4 } } });
     const events = event_pool.gotoTime(null);
     defer events.?.deinit();
     std.debug.assert(events.?.items.len == 2);
